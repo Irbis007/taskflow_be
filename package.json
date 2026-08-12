@@ -1,0 +1,41 @@
+{
+  "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
+    "@types/cookie-parser": "^1.4.10",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^25.9.3",
+    "@types/nodemailer": "^8.0.1",
+    "@types/swagger-ui-express": "^4.1.8",
+    "nodemon": "^3.1.14",
+    "ts-node": "^10.9.2",
+    "typescript": "^6.0.3"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "express-validator": "^7.3.2",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.7.0",
+    "nodemailer": "^8.0.11",
+    "socket.io": "^4.8.3",
+    "swagger-ui-express": "^5.0.1",
+    "uuid": "^14.0.0",
+    "zod-openapi": "^6.0.0"
+  },
+  "name": "taskflow_be",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon",
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "author": "",
+  "license": "ISC"
+}
