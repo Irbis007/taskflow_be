@@ -22,8 +22,11 @@ const createComment = async (
 ) => {
   try {
     const author = decodeJwt(req.cookies?.refreshToken);
+    console.log(req.cookies);
     if (!author) {
-      throw ApiError.BadRequest("cannot get author for comment");
+      throw ApiError.BadRequest(
+        `cannot get author for comment, ${req.cookies}`,
+      );
     }
     const comment = await commentService.createComment(req.body, author.id);
 
