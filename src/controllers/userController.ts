@@ -5,6 +5,16 @@ import { ApiError } from "../exceptions/api-error";
 import { getId } from "../utils/getId";
 import { decodeJwt } from "../utils/jwtDecode";
 
+const saveToken = (res: Response, refreshToken: string) => {
+  res.cookie("refreshToken", refreshToken, {
+    maxAge: 1000 * 60 * 60 * 24 * 30,
+    httpOnly: true,
+    sameSite: "none",
+    secure: true,
+    path: "/",
+  });
+};
+
 const registration = async (
   req: Request,
   res: Response,
@@ -22,11 +32,7 @@ const registration = async (
       name,
       surname,
     );
-    res.cookie("refreshToken", userData.refreshToken, {
-      maxAge: 1000 * 60 * 60 * 24 * 30,
-      httpOnly: true,
-      sameSite: "lax",
-    });
+    saveToken(res, userData.refreshToken);
     return res.json(userData);
   } catch (e) {
     return next(e);
@@ -37,11 +43,7 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { email, password } = req.body;
     const userData = await userServices.login(email, password);
-    res.cookie("refreshToken", userData.refreshToken, {
-      maxAge: 1000 * 60 * 60 * 24 * 30,
-      httpOnly: true,
-      sameSite: "lax",
-    });
+    saveToken(res, userData.refreshToken);
     return res.json(userData);
   } catch (e) {
     return next(e);
@@ -74,11 +76,7 @@ const refresh = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { refreshToken } = req.cookies;
     const userData = await userServices.refresh(refreshToken);
-    res.cookie("refreshToken", userData.refreshToken, {
-      maxAge: 1000 * 60 * 60 * 24 * 30,
-      httpOnly: true,
-      sameSite: "lax",
-    });
+    saveToken(res, userData.refreshToken);
     return res.json(userData);
   } catch (e) {
     return next(e);
