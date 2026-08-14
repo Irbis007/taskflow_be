@@ -58,9 +58,9 @@ io.on("connection", async (socket) => {
   socket.join(`user:${userId}`);
 
   const users = await userModel.find().lean();
-
+  console.log(users.map((item) => item._id));
   users.forEach((u) => {
-    io.to(`user:${u.id}`).emit("user:online", { userId, isOnline: true });
+    io.to(`user:${u._id}`).emit("user:online", { userId, isOnline: true });
   });
 
   socket.on("message:send", async (chat) => {
