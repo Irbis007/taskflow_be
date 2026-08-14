@@ -19,6 +19,7 @@ import { createServer } from "node:http";
 import { Server } from "socket.io";
 import { chatServices } from "./service/chat-services";
 import chatModel from "./models/chat-model";
+import userModel from "./models/user-model";
 
 const app = express();
 app.use(express.json());
@@ -51,12 +52,15 @@ const io = new Server(server, {
   },
 });
 
-io.on("connection", (socket) => {
+io.on("connection", async (socket) => {
   const userId = socket.handshake?.auth?.user?.id;
   console.log(`connect to the socket: ${userId}`);
   socket.join(`user:${userId}`);
-  socket.on("typing", (chat) => {
-    // const chatId = chat.id;
+
+  const users = await userModel.find().lean();
+
+  users.forEach((u) => {
+    io.to(`user:${u.id}`).emit("user:online", { userId, isOnline: true });
   });
 
   socket.on("message:send", async (chat) => {
@@ -86,8 +90,11 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("disconnect", () => {
+  socket.on("disconnect", async () => {
     console.log("user disconnected");
+    users.forEach((u) => {
+      io.to(`user:${u.id}`).emit("user:online", { userId, isOnline: false });
+    });
   });
 });
 
