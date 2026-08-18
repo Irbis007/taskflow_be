@@ -588,6 +588,8 @@ export const document = createDocument({
       Project: projectZodSchema,
       ProjectOverview: projectOverviewZodSchema,
       ProjectPut: editProjectZodSchema,
+      ChatItem: chatItemZodSchema,
+      Chat: chatZodSchema,
       // Project: projectZodSchema,
       // Project: projectZodSchema,
       ProjectCreate: projectCreateZodSchema,

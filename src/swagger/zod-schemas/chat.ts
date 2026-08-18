@@ -27,7 +27,7 @@ export const chatItemZodSchema = z.object({
   createdAt: z.date(),
   updatedAt: z.date(),
   chatName: z.string(),
-  lasMessage: z.string(),
+  lastMessage: messageZodSchema,
   lastMessageDate: z.date(),
   chatId: z.string(),
   companion: userZodSchema,
