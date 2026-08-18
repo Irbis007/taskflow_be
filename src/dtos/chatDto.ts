@@ -30,7 +30,9 @@ export async function getChatDto(
     throw ApiError.BadRequest(`cannot find companion for chat: ${model._id}`);
   }
 
-  const lastMessage = await messageModel.findOne({ chat: model._id });
+  const lastMessage = await messageModel
+    .findOne({ chat: model._id })
+    .sort({ createdAt: -1 });
   const lastMessageDto = lastMessage
     ? await getMessageDto(lastMessage)
     : undefined;
