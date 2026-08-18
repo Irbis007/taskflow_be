@@ -58,12 +58,12 @@ io.on("connection", async (socket) => {
   socket.join(`user:${userId}`);
 
   const users = await userModel.find().lean();
-  console.log(users.map((item) => item._id));
+
   users.forEach((u) => {
     io.to(`user:${u._id}`).emit("user:online", { userId, isOnline: true });
   });
 
-  socket.on("message:send", async (chat) => {
+  socket.on("message:send", async (chat, callback) => {
     if (userId) {
       const message = await chatServices.createMessage(chat, userId);
       const chatData = await chatModel.findById(message.chatId).lean();
@@ -74,6 +74,7 @@ io.on("connection", async (socket) => {
           message: message,
         });
       });
+      callback();
     }
   });
 
