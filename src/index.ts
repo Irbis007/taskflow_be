@@ -52,26 +52,19 @@ const io = new Server(server, {
   },
 });
 
-const usersOnline = new Map<string, Set<string>>();
-
 io.on("connection", async (socket) => {
   const userId = socket.handshake?.auth?.user?.id;
   console.log(`connect to the socket: ${userId}`);
   socket.join(`user:${userId}`);
 
-  let sockets = usersOnline.get(userId);
-
-  if (!sockets) {
-    sockets = new Set();
-    usersOnline.set(userId, sockets);
+  const sockets = await io.fetchSockets();
+  const usersOnline: string[] = [];
+  for (const socket of sockets) {
+    usersOnline.push(socket.handshake?.auth?.user?.id);
   }
 
-  sockets.add(socket.id);
-
-  const users = await userModel.find().lean();
-
-  users.forEach((u) => {
-    io.to(`user:${u._id}`).emit("user:online", { userId, isOnline: true });
+  usersOnline.forEach((u) => {
+    io.to(`user:${u}`).emit("user:online", { userId, isOnline: true });
   });
   socket.emit("users:online", usersOnline);
   socket.on("message:send", async (chat, callback) => {
@@ -90,13 +83,11 @@ io.on("connection", async (socket) => {
   });
 
   socket.on("typing:start", ({ chatId, companionId }) => {
-    console.log("start", userId, companionId);
     if (userId) {
       io.to(`user:${companionId}`).emit("typing:start", { chatId, userId });
     }
   });
   socket.on("typing:end", ({ chatId, companionId }) => {
-    console.log("start", userId, companionId);
     if (userId) {
       io.to(`user:${companionId}`).emit("typing:end", { userId, chatId });
     }
@@ -104,18 +95,9 @@ io.on("connection", async (socket) => {
 
   socket.on("disconnect", async () => {
     console.log("user disconnected");
-    users.forEach((u) => {
-      io.to(`user:${u.id}`).emit("user:online", { userId, isOnline: false });
+    usersOnline.forEach((u) => {
+      io.to(`user:${u}`).emit("user:online", { userId, isOnline: false });
     });
-
-    const sockets = usersOnline.get(userId);
-
-    if (!sockets) return;
-    sockets.delete(socket.id);
-
-    if (sockets.size === 0) {
-      usersOnline.delete(userId);
-    }
   });
 });
 
