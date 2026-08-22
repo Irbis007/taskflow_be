@@ -73,7 +73,7 @@ io.on("connection", async (socket) => {
   users.forEach((u) => {
     io.to(`user:${u._id}`).emit("user:online", { userId, isOnline: true });
   });
-  socket.emit("users:online");
+  socket.emit("users:online", usersOnline);
   socket.on("message:send", async (chat, callback) => {
     if (userId) {
       const message = await chatServices.createMessage(chat, userId);
@@ -111,7 +111,6 @@ io.on("connection", async (socket) => {
     const sockets = usersOnline.get(userId);
 
     if (!sockets) return;
-
     sockets.delete(socket.id);
 
     if (sockets.size === 0) {
