@@ -14,17 +14,18 @@ export const getGroupDto = async (
     : undefined;
   return {
     lastMessage: lastMessageDto,
-    chatId: model._id,
+    id: model._id,
     members: model.members,
     chatName: "",
   };
 };
 
-export async function getChatDto(
+export async function getChatItemDto(
   model: InstanceType<typeof chatModel>,
-  id: string,
+  userId: string,
 ) {
-  const companionId = model.members.filter((c) => c._id.toString() != id);
+  const companionId = model.members.filter((c) => c._id.toString() != userId);
+  const user = await userModel.findById(userId).select("pinnedChats");
   const companion = await userModel.findById(companionId);
   if (!companion) {
     throw ApiError.BadRequest(`cannot find companion for chat: ${model._id}`);
@@ -39,19 +40,23 @@ export async function getChatDto(
 
   return {
     chatName: `${companion.name} ${companion.surname.charAt(0)}`,
-    chatId: model._id,
+    id: model._id,
     avatar: `${companion.name.charAt(0)}${companion.surname.charAt(0)}`,
     companion: getUserDto(companion, true),
     lastMessage: lastMessageDto,
+    pinned: user?.pinnedChats.some((id) => id.equals(model._id)),
+    createdAt: model.createdAt,
+    updatedAt: model.updatedAt,
   };
 }
 
-export async function getChatDtoWithMessages(
+export async function getChatDto(
   model: InstanceType<typeof chatModel>,
-  id: string,
+  userId: string,
 ) {
-  const companionId = model.members.filter((c) => c._id.toString() != id);
+  const companionId = model.members.filter((c) => c._id.toString() != userId);
   const companion = await userModel.findById(companionId);
+  const user = await userModel.findById(userId).select("pinnedChats");
   if (!companion) {
     throw ApiError.BadRequest(`cannot find companion for chat: ${model._id}`);
   }
@@ -63,17 +68,20 @@ export async function getChatDtoWithMessages(
 
   return {
     chatName: `${companion.name} ${companion.surname.charAt(0)}`,
-    chatId: model._id,
+    id: model._id,
     avatar: `${companion.name.charAt(0)}${companion.surname.charAt(0)}`,
     companion: getUserDto(companion, true),
     messages: messagesDto,
+    pinned: user?.pinnedChats.some((id) => id.equals(model._id)),
+    createdAt: model.createdAt,
+    updatedAt: model.updatedAt,
   };
 }
 
 export async function getEmptyChatDto(model: InstanceType<typeof userModel>) {
   return {
     chatName: `${model.name} ${model.surname.charAt(0)}`,
-    chatId: null,
+    id: null,
     avatar: `${model.name.charAt(0)}${model.surname.charAt(0)}`,
     companion: getUserDto(model, true),
   };

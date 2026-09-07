@@ -6,6 +6,7 @@ const route = express();
 route.get("/chats", chatController.getChats);
 route.post("/chats", chatController.createChat);
 route.get("/chats/:id", chatController.getChat);
+route.patch("/chats/:id", chatController.editChat);
 route.post("/chats/:id/messages", chatController.createMessage);
 
 export const chatRouter = route;

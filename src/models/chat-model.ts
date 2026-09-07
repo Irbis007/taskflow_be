@@ -7,7 +7,6 @@ const ChatSchema = new Schema(
       enum: ["direct", "group"],
       required: true,
     },
-
     members: [
       {
         type: Schema.Types.ObjectId,
@@ -20,7 +19,6 @@ const ChatSchema = new Schema(
       trim: true,
       maxlength: 100,
     },
-
     lastMessage: {
       type: Schema.Types.ObjectId,
       ref: "Message",

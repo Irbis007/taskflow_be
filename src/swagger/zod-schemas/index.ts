@@ -38,4 +38,5 @@ export {
   chatZodSchema,
   createMessageZodSchema,
   messageZodSchema,
+  editChaZodSchema,
 } from "./chat";

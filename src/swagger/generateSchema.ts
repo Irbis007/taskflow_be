@@ -8,6 +8,7 @@ import {
   commentUpdateZodSchema,
   commentZodSchema,
   createMessageZodSchema,
+  editChaZodSchema,
   editProjectZodSchema,
   entityEnum,
   fullUserZodSchema,
@@ -456,6 +457,16 @@ export const document = createDocument({
     "/api/chats": {
       get: {
         tags: ["Users"],
+        parameters: [
+          {
+            name: "name",
+            in: "query",
+            required: false,
+            schema: {
+              type: "string",
+            },
+          },
+        ],
         responses: {
           "200": {
             description: "200 OK",
@@ -485,7 +496,7 @@ export const document = createDocument({
             description: "200 OK",
             content: {
               "application/json": {
-                schema: chatZodSchema,
+                schema: chatItemZodSchema,
               },
             },
           },
@@ -501,6 +512,26 @@ export const document = createDocument({
       ],
       get: {
         tags: ["Users"],
+        responses: {
+          "200": {
+            description: "200 OK",
+            content: {
+              "application/json": {
+                schema: chatZodSchema,
+              },
+            },
+          },
+        },
+      },
+      patch: {
+        tags: ["Users"],
+        requestBody: {
+          content: {
+            "application/json": {
+              schema: editChaZodSchema,
+            },
+          },
+        },
         responses: {
           "200": {
             description: "200 OK",

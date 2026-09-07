@@ -1,4 +1,4 @@
-import { Schema, model } from "mongoose";
+import { Schema, model, Types } from "mongoose";
 import { User } from "../types";
 
 type FullUser = User & {
@@ -10,6 +10,7 @@ type FullUser = User & {
   joinedDate: Date;
   lastActivityTime: Date;
   roleTitle: string;
+  pinnedChats: Types.ObjectId[];
 };
 
 const userSchema = new Schema<FullUser>({
@@ -31,6 +32,13 @@ const userSchema = new Schema<FullUser>({
     required: true,
     default: "Member",
   },
+  pinnedChats: [
+    {
+      type: Types.ObjectId,
+      ref: "Chat",
+      default: [],
+    },
+  ],
 });
 
 export default model("User", userSchema);
