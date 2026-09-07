@@ -20,6 +20,8 @@ import { Server } from "socket.io";
 import { chatServices } from "./service/chat-services";
 import chatModel from "./models/chat-model";
 import userModel from "./models/user-model";
+import { commentService } from "./service/comment-service";
+import { decodeJwt } from "./utils/jwtDecode";
 
 const app = express();
 app.use(express.json());
@@ -53,20 +55,30 @@ const io = new Server(server, {
 });
 
 io.on("connection", async (socket) => {
-  const userId = socket.handshake?.auth?.user?.id;
-  console.log(`connect to the socket: ${userId}`);
-  socket.join(`user:${userId}`);
+  const cookieHeader = socket.handshake.headers.cookie;
+  const refreshToken = cookieHeader
+    ?.split("; ")
+    .find((cookie) => cookie.startsWith("refreshToken="))
+    ?.split("=")[1];
+  const userId = decodeJwt(refreshToken)?.id.toString();
+  if (!userId) return;
 
+  socket.join(`user:${userId}`);
   const sockets = await io.fetchSockets();
-  const usersOnline: string[] = [];
-  for (const socket of sockets) {
-    usersOnline.push(socket.handshake?.auth?.user?.id);
-  }
+
+  const usersOnline = sockets.map((socket) => socket.handshake?.auth?.userId);
 
   usersOnline.forEach((u) => {
-    io.to(`user:${u}`).emit("user:online", { userId, isOnline: true });
+    io.to(`user:${u}`).emit("user:online", {
+      userId,
+    });
+  });
+
+  socket.on("users:getOnline", async () => {
+    socket.emit("users:online", usersOnline);
   });
   socket.emit("users:online", usersOnline);
+
   socket.on("message:send", async (chat, callback) => {
     if (userId) {
       const message = await chatServices.createMessage(chat, userId);
@@ -94,9 +106,14 @@ io.on("connection", async (socket) => {
   });
 
   socket.on("disconnect", async () => {
-    console.log("user disconnected");
+    const sockets = await io.fetchSockets();
+
+    const usersOnline = sockets.map((socket) => socket.handshake?.auth?.userId);
+
     usersOnline.forEach((u) => {
-      io.to(`user:${u}`).emit("user:online", { userId, isOnline: false });
+      io.to(`user:${u}`).emit("user:offline", {
+        userId,
+      });
     });
   });
 });
