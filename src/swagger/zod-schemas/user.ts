@@ -3,6 +3,7 @@ import { FullUser, ToZodSchema, User } from "../../types";
 import { colorsEnum, projectRoleEnum } from "./helpers";
 import { activityZodSchema } from "./activity";
 import { ObjectIdToString } from "mongoose";
+import { EditUser } from "../../types/user";
 // import { ObjectIdToString } from "mongoose";
 
 export const userZodSchema = z.object({
@@ -13,6 +14,13 @@ export const userZodSchema = z.object({
   id: z.string(),
   role: z.enum(["Member", "Admin"]),
 } as ToZodSchema<ObjectIdToString<User>>);
+export const editUserZodSchema = z.object({
+  name: z.string(),
+  surname: z.string(),
+  role: z.enum(["Member", "Admin"]),
+  timeZone: z.string().optional(),
+  location: z.string().optional(),
+} as ToZodSchema<ObjectIdToString<EditUser>>);
 
 export const fullUserZodSchema = z.object({
   name: z.string(),
@@ -39,6 +47,7 @@ export const fullUserZodSchema = z.object({
     }),
   ),
   lastActivities: z.lazy(() => z.array(activityZodSchema)),
+  chatId: z.string(),
 } satisfies ToZodSchema<ObjectIdToString<FullUser>>);
 
 export const userWithTokensZodSchema = z.object({

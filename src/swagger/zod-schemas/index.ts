@@ -3,6 +3,7 @@ export {
   userZodSchema,
   userWithTokensZodSchema,
   fullUserZodSchema,
+  editUserZodSchema,
 } from "./user";
 export {
   taskZodSchema,

@@ -5,6 +5,8 @@ import projectModel from "../models/project-model";
 import taskModel from "../models/task-model";
 import activityModel from "../models/activity-model";
 import { getActivityDto } from "./activityDto";
+import chatModel from "../models/chat-model";
+import { ApiError } from "../exceptions/api-error";
 
 type UserType = User & {
   isActivated: boolean;
@@ -31,6 +33,7 @@ export function getUserDto(
 
 export async function getFullUserDto(
   model: InstanceType<typeof userModel>,
+  authorId: string,
 ): Promise<FullUser> {
   const tasks = await taskModel.countDocuments({
     assignees: model._id,
@@ -49,7 +52,15 @@ export async function getFullUserDto(
   const activitiesDto = await Promise.all(
     activities.map((item) => getActivityDto(item)),
   );
-
+  const chat = await chatModel.findOne({
+    members: {
+      $all: [model._id, authorId],
+    },
+  });
+  console.log(chat, model._id, authorId);
+  if (!chat) {
+    throw ApiError.BadRequest("sdfsdfds");
+  }
   const [stats] = await taskModel.aggregate([
     {
       $match: {
@@ -85,6 +96,7 @@ export async function getFullUserDto(
     joinedDate: model.joinedDate,
     location: model.location,
     roleTitle: model.roleTitle,
+    chatId: chat._id,
     completedTasksRate:
       (stats?.total === 0
         ? 0

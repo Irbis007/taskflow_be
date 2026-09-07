@@ -10,6 +10,13 @@ export type User = {
   color: string;
   role: "Member" | "Admin";
 };
+export type EditUser = {
+  name: string;
+  surname: string;
+  role: "Member" | "Admin";
+  location?: string;
+  timeZone?: string;
+};
 
 export type FullUser = {
   name: string;
@@ -32,4 +39,5 @@ export type FullUser = {
     id: Types.ObjectId;
   })[];
   lastActivities: ActivityDto[];
+  chatId: Types.ObjectId;
 };

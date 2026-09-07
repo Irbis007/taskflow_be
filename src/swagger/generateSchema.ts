@@ -10,6 +10,7 @@ import {
   createMessageZodSchema,
   editChaZodSchema,
   editProjectZodSchema,
+  editUserZodSchema,
   entityEnum,
   fullUserZodSchema,
   iconsEnum,
@@ -444,6 +445,24 @@ export const document = createDocument({
       ],
       get: {
         tags: ["Users"],
+        responses: {
+          "200": {
+            description: "200 OK",
+            content: {
+              "application/json": { schema: fullUserZodSchema },
+            },
+          },
+        },
+      },
+      patch: {
+        tags: ["User"],
+        requestBody: {
+          content: {
+            "application/json": {
+              schema: editUserZodSchema,
+            },
+          },
+        },
         responses: {
           "200": {
             description: "200 OK",

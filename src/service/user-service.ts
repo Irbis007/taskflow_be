@@ -9,6 +9,7 @@ import tokenModel from "../models/token-model";
 import { getFullUserDto } from "../dtos/userDto";
 import chatModel from "../models/chat-model";
 import { Schema } from "mongoose";
+import { User } from "../types";
 
 const registration = async (
   email: string,
@@ -106,27 +107,37 @@ const getAllUsers = async () => {
   return usersDto;
 };
 
-const getUser = async (id: string) => {
+const getUser = async (id: string, authorId: string) => {
   const user = await userModel.findById(id);
   if (!user) {
     throw ApiError.BadRequest("Cannot get user");
   }
-  const usersDto = getFullUserDto(user);
+  const usersDto = getFullUserDto(user, authorId);
   return usersDto;
 };
 
-const getUsersAvailableForChat = async (id: string | undefined) => {
+const getUsersAvailableForChat = async (authorId: string) => {
   const users = await userModel.find();
-  const chats = await chatModel.find({ members: id });
+  const chats = await chatModel.find({ members: authorId });
   const availableUsers = users.filter(
     (u) =>
-      !u._id.equals(id) &&
-      chats.some((c) => c.members.some((m) => m.equals(id))),
+      !u._id.equals(authorId) &&
+      chats.some((c) => c.members.some((m) => m.equals(authorId))),
   );
   const usersDto = await Promise.all(
-    availableUsers.map((item) => getFullUserDto(item)),
+    availableUsers.map((item) => getFullUserDto(item, authorId)),
   );
   return usersDto;
+};
+const editUser = async (userId: string, data: User) => {
+  const user = await userModel.findByIdAndUpdate(userId, data, {
+    returnDocument: "after",
+  });
+  if (!user) {
+    throw ApiError.BadRequest("Cannot find and update user");
+  }
+  const userDto = getFullUserDto(user, userId);
+  return userDto;
 };
 
 export const userServices = {
@@ -138,4 +149,5 @@ export const userServices = {
   getAllUsers,
   getUser,
   getUsersAvailableForChat,
+  editUser,
 };

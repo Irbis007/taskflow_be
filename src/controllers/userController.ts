@@ -90,7 +90,11 @@ const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
 
 const getUser = async (req: Request, res: Response, next: NextFunction) => {
   const id = getId(req.params.id);
-  const user = await userServices.getUser(id);
+  const userId = decodeJwt(req.cookies?.refreshToken)?.id.toString();
+  if (!userId) {
+    throw ApiError.BadRequest("dsfdsgdsgds");
+  }
+  const user = await userServices.getUser(id, userId);
   return res.json(user);
 };
 
@@ -100,7 +104,19 @@ const getUsersAvailableForChat = async (
   next: NextFunction,
 ) => {
   const userId = decodeJwt(req.cookies?.refreshToken)?.id.toString();
+  if (!userId) {
+    throw ApiError.BadRequest("dsfdsgdsgds");
+  }
   const users = await userServices.getUsersAvailableForChat(userId);
+  return res.json(users);
+};
+
+const editUser = async (req: Request, res: Response, next: NextFunction) => {
+  const userId = decodeJwt(req.cookies?.refreshToken)?.id.toString();
+  if (!userId) {
+    throw ApiError.BadRequest("cannot find loginned user");
+  }
+  const users = await userServices.editUser(userId, req.body);
   return res.json(users);
 };
 
@@ -113,4 +129,5 @@ export const userController = {
   getAllUsers,
   getUser,
   getUsersAvailableForChat,
+  editUser,
 };

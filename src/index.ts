@@ -19,8 +19,6 @@ import { createServer } from "node:http";
 import { Server } from "socket.io";
 import { chatServices } from "./service/chat-services";
 import chatModel from "./models/chat-model";
-import userModel from "./models/user-model";
-import { commentService } from "./service/comment-service";
 import { decodeJwt } from "./utils/jwtDecode";
 
 const app = express();
