@@ -5,10 +5,8 @@ import { mailService } from "./mail-service";
 import { tokenService } from "./token-service";
 import { getUserDto } from "../dtos";
 import { ApiError } from "../exceptions/api-error";
-import tokenModel from "../models/token-model";
 import { getFullUserDto } from "../dtos/userDto";
 import chatModel from "../models/chat-model";
-import { Schema } from "mongoose";
 import { User } from "../types";
 
 const registration = async (
@@ -140,6 +138,10 @@ const editUser = async (userId: string, data: User) => {
   return userDto;
 };
 
+const inviteUser = async (userId: string, data: { email: string }) => {
+  await mailService.sendInvitationMail(data.email);
+};
+
 export const userServices = {
   registration,
   login,
@@ -150,4 +152,5 @@ export const userServices = {
   getUser,
   getUsersAvailableForChat,
   editUser,
+  inviteUser,
 };

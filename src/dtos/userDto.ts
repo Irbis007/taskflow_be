@@ -57,7 +57,6 @@ export async function getFullUserDto(
       $all: [model._id, authorId],
     },
   });
-  console.log(chat, model._id, authorId);
   if (!chat) {
     throw ApiError.BadRequest("sdfsdfds");
   }

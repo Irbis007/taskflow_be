@@ -113,7 +113,6 @@ const createMessage = async (
     lastMessageAt: message.createdAt,
   });
 
-  console.log("update chat", data.chatId, message.createdAt);
   const messageDto = getMessageDto(message);
   return messageDto;
 };

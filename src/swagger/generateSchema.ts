@@ -436,6 +436,24 @@ export const document = createDocument({
         },
       },
     },
+    "/api/users/invite": {
+      post: {
+        requestBody: {
+          content: {
+            "application/json": {
+              schema: z.object({
+                email: z.string(),
+              }),
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: "200 OK",
+          },
+        },
+      },
+    },
     "/api/users/{id}": {
       parameters: [
         {

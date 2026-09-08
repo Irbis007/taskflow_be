@@ -24,5 +24,20 @@ const sendActivationMail = async (to: string, link: string) => {
     `,
   });
 };
+//TODO: make invitation with expiration link
+//TODO: create link for creating account with email
+const sendInvitationMail = async (to: string) => {
+  transporter.sendMail({
+    from: process.env.SMTP_USER,
+    to,
+    subject: "Account activation " + process.env.API_URL,
+    text: "",
+    html: `
+    <div>
+      <h1>You have been invited to the Taskflow</h1>
+    </div>
+    `,
+  });
+};
 
-export const mailService = { sendActivationMail };
+export const mailService = { sendActivationMail, sendInvitationMail };

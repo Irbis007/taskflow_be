@@ -6,5 +6,6 @@ route.get("/users", userController.getAllUsers);
 route.get("/users/available-for-chat", userController.getUsersAvailableForChat);
 route.get("/users/:id", userController.getUser);
 route.patch("/users/:id", userController.editUser);
+route.post("/users/invite", userController.inviteUser);
 
 export const usersRoute = route;

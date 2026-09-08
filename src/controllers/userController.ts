@@ -120,6 +120,15 @@ const editUser = async (req: Request, res: Response, next: NextFunction) => {
   return res.json(users);
 };
 
+const inviteUser = async (req: Request, res: Response, next: NextFunction) => {
+  const userId = decodeJwt(req.cookies?.refreshToken)?.id.toString();
+  if (!userId) {
+    throw ApiError.BadRequest("cannot find loginned user");
+  }
+  await userServices.inviteUser(userId, req.body);
+  return res.status(200).json();
+};
+
 export const userController = {
   refresh,
   registration,
@@ -130,4 +139,5 @@ export const userController = {
   getUser,
   getUsersAvailableForChat,
   editUser,
+  inviteUser,
 };
