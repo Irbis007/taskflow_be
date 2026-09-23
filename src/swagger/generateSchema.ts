@@ -8,6 +8,7 @@ import {
   commentUpdateZodSchema,
   commentZodSchema,
   createMessageZodSchema,
+  dashboardZodSchema,
   editChaZodSchema,
   editProjectZodSchema,
   editUserZodSchema,
@@ -19,6 +20,7 @@ import {
   messageZodSchema,
   priorityEnum,
   projectOverviewZodSchema,
+  projectStatusArr,
   projectStatusEnum,
   projectZodSchema,
   registrationZodSchema,
@@ -96,6 +98,102 @@ export const document = createDocument({
         },
       },
     },
+    "/api/refresh-password": {
+      post: {
+        requestBody: {
+          content: {
+            "application/json": {
+              schema: z.object({
+                currentPassword: z.string(),
+                newPassword: z.string(),
+              }),
+            },
+          },
+        },
+        responses: {
+          "200": {},
+        },
+      },
+    },
+    "/api/2fa/setup": {
+      post: {
+        responses: {
+          200: {
+            content: {
+              "application/json": {
+                schema: z.object({
+                  otpauthUrl: z.string(),
+                }),
+              },
+            },
+          },
+        },
+      },
+    },
+    "/api/2fa/enable": {
+      post: {
+        requestBody: {
+          content: {
+            "application/json": {
+              schema: z.object({
+                code: z.string(),
+              }),
+            },
+          },
+        },
+        responses: {
+          "200": {},
+        },
+      },
+    },
+    "/api/search": {
+      get: {
+        parameters: [
+          {
+            name: "search",
+            in: "query",
+            schema: {
+              type: "string",
+            },
+          },
+        ],
+        responses: {
+          "200": {
+            content: {
+              "application/json": {
+                schema: z.object({
+                  tasks: z.array(
+                    z.object({
+                      title: z.string(),
+                      id: z.string(),
+                    }),
+                  ),
+                  projects: z.array(
+                    z.object({
+                      title: z.string(),
+                      id: z.string(),
+                    }),
+                  ),
+                }),
+              },
+            },
+          },
+        },
+      },
+    },
+    "/api/dashboard": {
+      get: {
+        responses: {
+          "200": {
+            content: {
+              "application/json": {
+                schema: dashboardZodSchema,
+              },
+            },
+          },
+        },
+      },
+    },
     "/api/tasks": {
       get: {
         parameters: [
@@ -109,7 +207,7 @@ export const document = createDocument({
             },
           },
           {
-            name: "assignee",
+            name: "assignees",
             in: "query",
             required: false,
             schema: {
@@ -182,6 +280,17 @@ export const document = createDocument({
             description: "200 OK",
             content: {
               "application/json": { schema: singleTaskZodSchema },
+            },
+          },
+        },
+      },
+      delete: {
+        tags: ["Tasks"],
+        responses: {
+          "200": {
+            description: "200 OK",
+            content: {
+              "application/json": { schema: { message: z.string() } },
             },
           },
         },
@@ -271,6 +380,23 @@ export const document = createDocument({
     },
     "/api/projects": {
       get: {
+        parameters: [
+          {
+            name: "status",
+            in: "query",
+            schema: {
+              type: "string",
+              enum: projectStatusArr,
+            },
+          },
+          {
+            name: "search",
+            in: "query",
+            schema: {
+              type: "string",
+            },
+          },
+        ],
         tags: ["Projects"],
         responses: {
           "200": {

@@ -9,6 +9,7 @@ route.get("/tasks", taskController.getTasks);
 route.get("/tasks/:id", taskController.getTask);
 route.post("/tasks", taskController.createTask);
 route.patch("/tasks/:id", taskController.partialUpdateTask);
+route.delete("/tasks/:id", taskController.deleteTask);
 
 route.get("/tasks/:taskId/comments", commentController.getComments);
 route.post("/tasks/:taskId/comments", commentController.createComment);

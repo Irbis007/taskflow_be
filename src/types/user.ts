@@ -9,6 +9,10 @@ export type User = {
   email: string;
   color: string;
   role: "Member" | "Admin";
+  twoFactor: {
+    enabled: boolean;
+    configured: boolean;
+  };
 };
 export type EditUser = {
   name: string;

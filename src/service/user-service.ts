@@ -8,6 +8,7 @@ import { ApiError } from "../exceptions/api-error";
 import { getFullUserDto } from "../dtos/userDto";
 import chatModel from "../models/chat-model";
 import { User } from "../types";
+import { generateSecret, generateURI, verify, VerifyResult } from "otplib";
 
 const registration = async (
   email: string,
@@ -96,6 +97,27 @@ const refresh = async (refreshToken?: string | null) => {
   };
 };
 
+const resetPassword = async (
+  data: {
+    currentPassword: string;
+    newPassword: string;
+  },
+  userId: string,
+) => {
+  const user = await userModel.findById(userId);
+  if (!user) {
+    throw ApiError.BadRequest("cannot find user");
+  }
+  const isCorrect = await bcrypt.compare(data.currentPassword, user?.password);
+  console.log(data.currentPassword, user?.password);
+  if (!isCorrect) {
+    throw ApiError.BadRequest("Current password is not correct");
+  }
+  const hashedPassword = await bcrypt.hash(data.newPassword, 3);
+  user.password = hashedPassword;
+  user.save();
+};
+
 const getAllUsers = async () => {
   const users = await userModel.find();
   if (!users) {
@@ -110,7 +132,7 @@ const getUser = async (id: string, authorId: string) => {
   if (!user) {
     throw ApiError.BadRequest("Cannot get user");
   }
-  const usersDto = getFullUserDto(user, authorId);
+  const usersDto = await getFullUserDto(user, authorId);
   return usersDto;
 };
 
@@ -142,6 +164,103 @@ const inviteUser = async (userId: string, data: { email: string }) => {
   await mailService.sendInvitationMail(data.email);
 };
 
+// 2FA
+
+const setup2fa = async (userId: string) => {
+  const user = await userModel.findById(userId);
+
+  if (!user) {
+    throw ApiError.BadRequest("cannot find user");
+  }
+
+  let secret = user.twoFactor.pendingSecret;
+
+  if (!secret) {
+    secret = generateSecret();
+    user.twoFactor.pendingSecret = secret;
+    await user.save();
+  }
+
+  const otpauthUrl = generateURI({
+    issuer: "TaskFlow",
+    label: user.email,
+    secret,
+  });
+
+  return otpauthUrl;
+};
+
+const enable2fa = async (code: string, userId: string) => {
+  const user = await userModel.findById(userId);
+
+  if (!user) {
+    throw ApiError.BadRequest("User not found");
+  }
+
+  const secret = user.twoFactor.pendingSecret || user.twoFactor.secret;
+
+  if (!secret) {
+    throw ApiError.BadRequest("2FA setup not found");
+  }
+
+  const result = await verify({
+    token: code,
+    secret,
+  });
+
+  if (!result.valid) {
+    throw ApiError.BadRequest("Invalid authentication code");
+  }
+
+  if (user.twoFactor.pendingSecret) {
+    user.twoFactor.secret = user.twoFactor.pendingSecret;
+    user.twoFactor.pendingSecret = null;
+  }
+
+  user.twoFactor.enabled = true;
+
+  await user.save();
+
+  return getUserDto(user, true);
+};
+
+const disable2fa = async (userId: string) => {
+  const user = await userModel.findById(userId);
+
+  if (!user) {
+    throw ApiError.BadRequest("2FA setup not found");
+  }
+
+  user.twoFactor.enabled = false;
+
+  await user.save();
+  return getUserDto(user, true);
+};
+
+const verify2fa = async (code: string, userId: string) => {
+  const user = await userModel.findById(userId);
+
+  if (!user) {
+    throw ApiError.BadRequest("cannot find user");
+  }
+  const result = await verify({
+    token: code,
+    secret: user.twoFactor.secret,
+  });
+
+  if (!result.valid) {
+    throw ApiError.BadRequest("Invalid authentication code");
+  }
+  const userDto = getUserDto(user);
+  const tokens = await tokenService.generateToken({ ...userDto });
+  await tokenService.saveToken(user._id, tokens.refreshToken);
+
+  return {
+    ...tokens,
+    user: userDto,
+  };
+};
+
 export const userServices = {
   registration,
   login,
@@ -153,4 +272,9 @@ export const userServices = {
   getUsersAvailableForChat,
   editUser,
   inviteUser,
+  resetPassword,
+  setup2fa,
+  enable2fa,
+  disable2fa,
+  verify2fa,
 };

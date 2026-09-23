@@ -13,6 +13,10 @@ export const userZodSchema = z.object({
   color: z.string(),
   id: z.string(),
   role: z.enum(["Member", "Admin"]),
+  twoFactor: z.object({
+    enabled: z.boolean(),
+    configured: z.boolean(),
+  }),
 } as ToZodSchema<ObjectIdToString<User>>);
 export const editUserZodSchema = z.object({
   name: z.string(),

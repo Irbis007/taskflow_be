@@ -8,7 +8,7 @@ import { activityService } from "./activity-service";
 
 type GetTasksQuery = {
   priority?: "Hight";
-  assignee?: string;
+  assignees?: string;
   projectId?: string;
 };
 

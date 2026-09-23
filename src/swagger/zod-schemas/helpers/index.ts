@@ -8,6 +8,7 @@ export {
   actionEnum,
   groupRoleEnum,
   projectRoleEnum,
+  projectStatusArr,
 } from "./enums";
 
 export { tagZodSchema } from "./tag";

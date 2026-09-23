@@ -2,6 +2,7 @@ import { NextFunction, Response, Request } from "express";
 import { ApiError } from "../exceptions/api-error";
 import { taskService } from "../service/task-services";
 import { decodeJwt } from "../utils/jwtDecode";
+import { getId } from "../utils/getId";
 
 const getTasks = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -15,9 +16,7 @@ const getTasks = async (req: Request, res: Response, next: NextFunction) => {
 
 const getTask = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const id = Array.isArray(req.params?.id)
-      ? req.params?.id[0]
-      : req.params?.id;
+    const id = getId(req.params.id);
     const tasksData = await taskService.getTask(id);
     return res.json(tasksData);
   } catch (e) {
@@ -47,8 +46,7 @@ const partialUpdateTask = async (
   next: NextFunction,
 ) => {
   try {
-    const id =
-      typeof req.params.id === "string" ? req.params.id : req.params.id[0];
+    const id = getId(req.params.id);
     const taskData = await taskService.partialUpdateTask(req.body, id);
 
     return res.json(taskData);
@@ -59,8 +57,7 @@ const partialUpdateTask = async (
 
 const deleteTask = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const id =
-      typeof req.params.id === "string" ? req.params.id : req.params.id[0];
+    const id = getId(req.params.id);
     await taskService.deleteTask(id);
 
     return res.json({ message: `task with id: ${id} deleted` });

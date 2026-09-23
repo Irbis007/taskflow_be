@@ -20,6 +20,8 @@ import { Server } from "socket.io";
 import { chatServices } from "./service/chat-services";
 import chatModel from "./models/chat-model";
 import { decodeJwt } from "./utils/jwtDecode";
+import { dashboardRoute } from "./route/dashboardRoute";
+import { searchRoute } from "./route/searchRoute";
 
 const app = express();
 app.use(express.json());
@@ -36,6 +38,8 @@ app.use("/api", projectRoute);
 app.use("/api", usersRoute);
 app.use("/api", tagRoute);
 app.use("/api", chatRouter);
+app.use("/api", dashboardRoute);
+app.use("/api", searchRoute);
 app.use(errorMiddleware);
 
 app.use("/api-docs", swaggerUi.serve);

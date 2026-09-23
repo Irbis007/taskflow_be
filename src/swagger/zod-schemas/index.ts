@@ -32,6 +32,7 @@ export {
   colorsEnum,
   iconsEnum,
   entityEnum,
+  projectStatusArr,
 } from "./helpers";
 export { taskCreateZodSchema, projectCreateZodSchema } from "./create";
 export {
@@ -41,3 +42,5 @@ export {
   messageZodSchema,
   editChaZodSchema,
 } from "./chat";
+
+export { dashboardZodSchema } from "./dashboard";

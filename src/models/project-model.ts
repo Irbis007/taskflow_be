@@ -7,7 +7,11 @@ const projectSchema = new Schema(
     description: { type: String },
     color: { type: String, required: true },
     deadline: { type: Date },
-    status: { type: String, required: true },
+    status: {
+      type: String,
+      enum: ["Active", "On hold", "Done"],
+      required: true,
+    },
     visibility: { type: String },
     members: [
       {

@@ -23,6 +23,10 @@ export function getUserDto(
     surname: model.surname,
     color: model.color,
     role: model.role,
+    twoFactor: {
+      enabled: model.twoFactor.enabled,
+      configured: !!model.twoFactor.secret,
+    },
     ...(withoutActivation
       ? {
           isActivated: model.isActivated,

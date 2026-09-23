@@ -1,10 +1,14 @@
 import * as z from "zod/v4";
-import { Entity, ProjectRole } from "../../../types";
+import { Entity, ProjectRole, ProjectStatus } from "../../../types";
 
 const taskStatusArr = ["Backlog", "To Do", "In progress", "Review", "Done"];
 export const taskStatusEnum = z.enum(taskStatusArr);
 
-const projectStatusArr = ["Active", "Planned"];
+export const projectStatusArr = [
+  "Active",
+  "On hold",
+  "Done",
+] satisfies ProjectStatus[];
 export const projectStatusEnum = z.enum(projectStatusArr);
 
 const priorityArr = ["Low", "Medium", "Hight"];

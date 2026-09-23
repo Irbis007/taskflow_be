@@ -2,8 +2,9 @@ import { Request, Response, NextFunction } from "express";
 import { userServices } from "../service/user-service";
 import { validationResult } from "express-validator";
 import { ApiError } from "../exceptions/api-error";
-import { getId } from "../utils/getId";
+import { getId, getUserId } from "../utils/getId";
 import { decodeJwt } from "../utils/jwtDecode";
+import userModel from "../models/user-model";
 
 const saveToken = (res: Response, refreshToken: string) => {
   res.cookie("refreshToken", refreshToken, {
@@ -83,6 +84,20 @@ const refresh = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
+const resetPassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const userId = getUserId(req);
+    await userServices.resetPassword(req.body, userId);
+    return res.json(undefined);
+  } catch (e) {
+    return next(e);
+  }
+};
+
 const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
   const users = await userServices.getAllUsers();
   return res.json(users);
@@ -103,30 +118,40 @@ const getUsersAvailableForChat = async (
   res: Response,
   next: NextFunction,
 ) => {
-  const userId = decodeJwt(req.cookies?.refreshToken)?.id.toString();
-  if (!userId) {
-    throw ApiError.BadRequest("dsfdsgdsgds");
-  }
+  const userId = getUserId(req);
   const users = await userServices.getUsersAvailableForChat(userId);
   return res.json(users);
 };
 
 const editUser = async (req: Request, res: Response, next: NextFunction) => {
-  const userId = decodeJwt(req.cookies?.refreshToken)?.id.toString();
-  if (!userId) {
-    throw ApiError.BadRequest("cannot find loginned user");
-  }
+  const userId = getUserId(req);
   const users = await userServices.editUser(userId, req.body);
   return res.json(users);
 };
 
 const inviteUser = async (req: Request, res: Response, next: NextFunction) => {
-  const userId = decodeJwt(req.cookies?.refreshToken)?.id.toString();
-  if (!userId) {
-    throw ApiError.BadRequest("cannot find loginned user");
-  }
+  const userId = getUserId(req);
   await userServices.inviteUser(userId, req.body);
   return res.status(200).json();
+};
+
+// 2FA
+
+const setup2fa = async (req: Request, res: Response, next: NextFunction) => {
+  const userId = getUserId(req);
+  const otpauthUrl = await userServices.setup2fa(userId);
+
+  res.json({
+    otpauthUrl,
+  });
+};
+
+const enable2fa = async (req: Request, res: Response, next: NextFunction) => {
+  const code = req.body.code;
+  const userId = getUserId(req);
+  await userServices.enable2fa(code, userId);
+
+  return res.json();
 };
 
 export const userController = {
@@ -140,4 +165,7 @@ export const userController = {
   getUsersAvailableForChat,
   editUser,
   inviteUser,
+  resetPassword,
+  setup2fa,
+  enable2fa,
 };

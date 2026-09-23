@@ -2,11 +2,12 @@ import { Types } from "mongoose";
 import { User } from "./user";
 import { Project } from "./Project";
 import { Tag } from "./tag";
+import { Priority } from ".";
 
 export type Task = {
   title: string;
   status: "Backlog" | "To Do" | "In progress" | "Review" | "Done";
-  priority: string;
+  priority: Priority;
   deadline?: NativeDate | null;
   assignees?: Types.ObjectId[];
   tags?: Types.ObjectId[];

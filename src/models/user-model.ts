@@ -11,6 +11,12 @@ type FullUser = User & {
   lastActivityTime: Date;
   roleTitle: string;
   pinnedChats: Types.ObjectId[];
+  twoFactor: {
+    enabled: boolean;
+    secret: string;
+    pendingSecret: string | null;
+    recoveryCode: string[];
+  };
 };
 
 const userSchema = new Schema<FullUser>({
@@ -39,6 +45,23 @@ const userSchema = new Schema<FullUser>({
       default: [],
     },
   ],
+  twoFactor: {
+    enabled: {
+      type: Boolean,
+      default: false,
+    },
+    secret: {
+      type: String,
+    },
+    pendingSecret: {
+      type: String,
+    },
+    recoveryCodes: [
+      {
+        type: String,
+      },
+    ],
+  },
 });
 
 export default model("User", userSchema);

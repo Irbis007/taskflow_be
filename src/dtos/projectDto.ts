@@ -15,10 +15,23 @@ export const getProjectDto = async (
   model: InstanceType<typeof projectModel> | null,
 ): Promise<Partial<Project>> => {
   const user = await userModel.findById(model?.author);
+  const tasks = await taskModel.find({ project: model?._id }).lean();
+  const members = await userModel.find({
+    _id: {
+      $in: model?.members?.map((item) => item.id) ?? [],
+    },
+  });
   if (!user) {
     throw ApiError.BadRequest("There is no user");
   }
   const author = getUserDto(user);
+  const projectProgress =
+    (tasks.filter((t) => t.status === "Done").length * 100) / tasks.length;
+
+  const membersDto = await Promise.all(
+    members.map((item) => getUserDto(item, true)),
+  );
+
   return model
     ? {
         name: model.name,
@@ -27,9 +40,11 @@ export const getProjectDto = async (
         color: model.color,
         status: model.status,
         deadline: model.deadline,
-        members: model.members,
+        members: membersDto,
         id: model._id,
         author,
+        progress: projectProgress || 0,
+        totalTasks: tasks.length,
       }
     : ({} as Project);
 };

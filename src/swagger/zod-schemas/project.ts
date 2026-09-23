@@ -13,6 +13,8 @@ export const projectZodSchema = z.object({
   deadline: z.date().optional().nullable(),
   status: projectStatusEnum,
   members: z.array(userZodSchema),
+  progress: z.number(),
+  totalTasks: z.number(),
 });
 export const projectOverviewZodSchema = z.object({
   progressByCategories: z.record(

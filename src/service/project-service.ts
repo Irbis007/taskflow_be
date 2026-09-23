@@ -5,14 +5,25 @@ import {
   getSingleProjectDto,
 } from "../dtos/projectDto";
 import projectModel from "../models/project-model";
-import { ProjectCreate, ProjectEdit } from "../types/Project";
+import { ProjectCreate, ProjectEdit, ProjectStatus } from "../types/Project";
 import { activityService } from "./activity-service";
 import { getUserDto } from "../dtos";
 import userModel from "../models/user-model";
 import taskModel from "../models/task-model";
 
-const getProjects = async () => {
-  const projects = await projectModel.find({ isDeleted: false });
+type Query = {
+  status?: ProjectStatus;
+  search?: string;
+};
+
+const getProjects = async ({ search, ...query }: Query) => {
+  const projects = await projectModel.find({
+    isDeleted: false,
+    name: {
+      $regex: search || "",
+    },
+    ...query,
+  });
   if (!projects) {
     throw ApiError.BadRequest("Error while getting projects");
   }

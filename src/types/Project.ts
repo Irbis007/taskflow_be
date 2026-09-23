@@ -9,12 +9,11 @@ export type Project = {
   color: string;
   deadline?: NativeDate | null;
   status: string;
-  members?: {
-    id: Types.ObjectId;
-    role?: "Member" | "Lead" | null;
-  }[];
+  members?: User[];
   id: Types.ObjectId;
   author: User;
+  progress: number;
+  totalTasks: number;
 };
 
 export type ProjectCreate = {
@@ -23,7 +22,7 @@ export type ProjectCreate = {
   description?: string | null;
   color: string;
   deadline?: NativeDate | null;
-  status: string;
+  status: ProjectStatus;
   members?: Types.ObjectId[];
   author: Types.ObjectId;
 };
@@ -65,3 +64,5 @@ export type ProjectOverview = {
     }
   >;
 };
+
+export type ProjectStatus = "Active" | "Done" | "On hold";
